@@ -15,17 +15,22 @@ class SoftRigResourceOwner implements ResourceOwnerInterface
 
   /**
    * @var array $response		Raw response
+   * @var string companyKey The key of the company the user has access to
    */
-  protected $response;
+  protected $response, $companyKey;
 
   /**
    * Creates new resource owner.
    *
    * @param array  $response
    */
-  public function __construct(array $response = array())
+  public function __construct(array $response, string $companyKey)
   {
-    $this->response = $response;
+    if (strlen(trim($companyKey)) === 0)
+      throw new \InvalidArgumentException(__METHOD__ . '; Invalid company key');
+
+    $this->response   = $response;
+    $this->companyKey = $companyKey;
   }
 
   /**
@@ -66,6 +71,15 @@ class SoftRigResourceOwner implements ResourceOwnerInterface
   public function getUsername()
   {
     return $this->getValueByKey($this->response, 'UserName');
+  }
+
+  /**
+   * Get the company key
+   * @return string
+   */
+  public function getCompanyKey()
+  {
+    return $this->companyKey;
   }
 
   /**

@@ -5,7 +5,6 @@ use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\RequestInterface;
 use Psyfactory\Oauth2\Client\Provider\Exception\SoftRigIdentityProviderException;
 
 /**
@@ -61,7 +60,18 @@ class SoftRig extends AbstractProvider
    */
   protected function getDefaultScopes() : array
   {
-    return ['profile openid offline_access AppFramework'];
+    return ['profile openid'];
+  }
+
+  /**
+   * Returns the string that should be used to separate scopes when building
+   * the URL for requesting an access token.
+   *
+   * @return string
+   */
+  protected function getScopeSeparator() : string
+  {
+    return ' ';
   }
 
   /**
@@ -89,7 +99,9 @@ class SoftRig extends AbstractProvider
    */
   protected function createResourceOwner(array $response, AccessToken $token) : SoftRigResourceOwner
   {
-    return new SoftRigResourceOwner($response);
+    $jwt = $this->decryptJwt($token);
+
+    return new SoftRigResourceOwner($response, $jwt['companyKey']);
   }
 
   /**
@@ -107,6 +119,9 @@ class SoftRig extends AbstractProvider
 
     $tokenParts   = explode(".", $tokenValues['id_token']);
     $jwt          = json_decode(base64_decode(strtr($tokenParts[1], "-_", "+/")), true);
+
+    if (!isset($jwt['companyKey']))
+      throw new \Exception(__METHOD__ . '; No companyKey set in JWT');
 
     if (!isset($jwt['AppFramework']))
       throw new \Exception(__METHOD__ . '; No AppFramework set in JWT');
