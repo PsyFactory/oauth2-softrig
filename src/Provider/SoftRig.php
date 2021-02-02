@@ -1,11 +1,12 @@
 <?php
-namespace Psyfactory\Oauth2\Client\Provider;
+namespace Psyfactory\OAuth2\Client\Provider;
 
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psyfactory\Oauth2\Client\Provider\Exception\SoftRigIdentityProviderException;
+use InvalidArgumentException;
 
 /**
  * SoftRig oauth2 client
@@ -18,7 +19,21 @@ class SoftRig extends AbstractProvider
     getAuthorizationHeaders as getTokenBearerAuthorizationHeaders;
   }
 
-  const DOMAIN  = 'https://test-login.softrig.com';
+  protected $baseUrl;
+
+  /**
+   * SoftRig oauth2 client provider constructor
+   * @param array $options
+   * @param array $collaborators
+   */
+  public function __construct(array $options = [], array $collaborators = [])
+  {
+    $this->assertRequiredOptions($options);
+
+    $this->baseUrl = $options['baseUrl'];
+
+    parent::__construct($options, $collaborators);
+  }
 
   /**
    * Returns the base URL for authorizing a client.
@@ -26,7 +41,7 @@ class SoftRig extends AbstractProvider
    */
   public function getBaseAuthorizationUrl() : string
   {
-    return self::DOMAIN . '/connect/authorize';
+    return $this->baseUrl . '/connect/authorize';
   }
 
   /**
@@ -37,7 +52,7 @@ class SoftRig extends AbstractProvider
    */
   public function getBaseAccessTokenUrl(array $params) : string
   {
-    return self::DOMAIN . '/connect/token';
+    return $this->baseUrl . '/connect/token';
   }
 
   /**
@@ -102,6 +117,31 @@ class SoftRig extends AbstractProvider
     $jwt = $this->decryptJwt($token);
 
     return new SoftRigResourceOwner($response, $jwt['companyKey']);
+  }
+
+  /**
+   * Verifies that all required options have been passed.
+   *
+   * @param  array $options
+   * @return void
+   * @throws InvalidArgumentException
+   */
+  private function assertRequiredOptions(array $options)
+  {
+    $missing = array_diff_key(array_flip($this->getRequiredOptions()), $options);
+
+    if (!empty($missing))
+      throw new InvalidArgumentException(__METHOD__ . '; Required options not defined: ' . implode(', ', array_keys($missing)));
+  }
+
+  /**
+   * Returns all options that are required.
+   *
+   * @return array
+   */
+  protected function getRequiredOptions()
+  {
+    return ['clientId', 'clientSecret', 'baseUrl'];
   }
 
   /**

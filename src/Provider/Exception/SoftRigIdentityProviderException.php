@@ -1,5 +1,5 @@
 <?php
-namespace Psyfactory\Oauth2\Client\Provider\Exception;
+namespace Psyfactory\OAuth2\Client\Provider\Exception;
 
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Psr\Http\Message\ResponseInterface;
