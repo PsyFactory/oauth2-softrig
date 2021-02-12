@@ -20,6 +20,7 @@ class SoftRig extends AbstractProvider
   }
 
   protected $baseUrl;
+  protected $apiBaseUrl;
 
   /**
    * SoftRig oauth2 client provider constructor
@@ -31,6 +32,9 @@ class SoftRig extends AbstractProvider
     $this->assertRequiredOptions($options);
 
     $this->baseUrl = $options['baseUrl'];
+
+    if (isset($options['apiBaseUrl']) && is_string($options['apiBaseUrl']) && strlen(trim($options['apiBaseUrl'])) > 0)
+      $this->apiBaseUrl = $options['apiBaseUrl'];
 
     parent::__construct($options, $collaborators);
   }
@@ -66,8 +70,15 @@ class SoftRig extends AbstractProvider
   {
     $jwt = $this->decryptJwt($token);
 
-    return $jwt['AppFramework'] . 'api/biz/users?action=current-session';
-   }
+    if (isset($jwt['AppFramework']))
+      $apiBaseUrl = $jwt['AppFramework'];
+    else if (!is_null($this->apiBaseUrl))
+      $apiBaseUrl = $this->apiBaseUrl;
+    else
+      throw new \Exception(__METHOD__ . '; No ApiBaseUrl set and no AppFramework in token JWT');
+
+    return $apiBaseUrl . 'api/biz/users?action=current-session';
+  }
 
    /**
     * Create an access token from an array
@@ -172,9 +183,6 @@ class SoftRig extends AbstractProvider
 
     if (!isset($jwt['companyKey']))
       throw new \Exception(__METHOD__ . '; No companyKey set in JWT');
-
-    if (!isset($jwt['AppFramework']))
-      throw new \Exception(__METHOD__ . '; No AppFramework set in JWT');
 
     return $jwt;
   }
