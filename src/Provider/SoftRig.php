@@ -69,6 +69,16 @@ class SoftRig extends AbstractProvider
     return $jwt['AppFramework'] . 'api/biz/users?action=current-session';
    }
 
+   /**
+    * Create an access token from an array
+    * @param array $tokenArray
+    * @return \League\OAuth2\Client\Token\AccessToken
+    */
+   public function createAccessTokenFromArray(array $tokenArray) : AccessToken
+   {
+     return new AccessToken($tokenArray);
+   }
+
   /**
    * Get the defaullt scopes
    * @return array
