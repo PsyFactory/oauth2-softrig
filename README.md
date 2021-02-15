@@ -4,6 +4,7 @@ This package provides SoftRig OAuth 2.0 support for the PHP League's [OAuth 2.0 
 ## Installation
 
 ```
+composer config repositories.oauth2-softrig vcs https://github.com/PsyFactory/oauth2-softrig.git
 composer require psyfactory/oauth2-softrig
 ```
 
