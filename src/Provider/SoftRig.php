@@ -5,7 +5,7 @@ use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use Psr\Http\Message\ResponseInterface;
-use Psyfactory\Oauth2\Client\Provider\Exception\SoftRigIdentityProviderException;
+use Psyfactory\OAuth2\Client\Provider\Exception\SoftRigIdentityProviderException;
 use InvalidArgumentException;
 
 /**
